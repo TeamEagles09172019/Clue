@@ -3,7 +3,7 @@ from thread import *
 from clue import Player
 import pickle
 
-server = "192.168.1.172"
+server = "localhost"
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
