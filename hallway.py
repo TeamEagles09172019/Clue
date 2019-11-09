@@ -2,6 +2,9 @@ import pygame, sys
 # from network import Network
 # from clue import Player
 from pygame.locals import *
+import os, random
+os.chdir("/Users/tomtom/Documents/JHU_MS_CS/Foundations_Software_Eng/Clue")
+
 
 pygame.init()
 width = 900
@@ -33,6 +36,7 @@ VIOLET = 153, 51, 255
 BLUE = 68, 106, 255
 WHITE = 255,255,255
 font = pygame.font.SysFont(None,25) # default font set at 21 points
+player_font = pygame.font.SysFont(None,50)
 
 def drawText(text, font, surface, x, y):
 	textobj = font.render(text, 1, BLACK)  ## defining the text object with font and color
@@ -40,7 +44,22 @@ def drawText(text, font, surface, x, y):
 	textrect.topleft = (x,y) ## setting the location of the text object
 	surface.blit(textobj, textrect) ## displaying the textobject at the text location
 
+# doc = pygame.Rect(10, 10, 10, 10)
+# docImage = pygame.image.load("images/doc.bmp")
+# docStretched = pygame.transform.scale(docImage, (40,40))
 
+def die():
+	random.randint(1,7)
+
+def move(win):
+	# doctor
+	column = 10
+	row = 10
+	# pygame.draw.rect(win, BLACK, [TILE_SIZE*column+TILE_MARGIN, TILE_SIZE*row + TILE_MARGIN,TILE_WIDTH,TILE_HEIGHT])
+	drawText("D", player_font, win, TILE_SIZE*column, TILE_SIZE*row)
+
+# print(nurseImage)
+# DRAW HALLWAYS
 hall = WHITE
 def draw(col1, col2, row1, row2):
 	for column in range(col1,col2):
@@ -144,7 +163,7 @@ def redrawWindow(win):
 	drawText("Kitchen", font, win, 700, 690)
 
 	drawHalls(win)
-	pygame.display.update()
+	move(win)
 
 
 def terminate():
@@ -153,11 +172,9 @@ def terminate():
 
 
 def main():
-	run = True
-
 	clock = pygame.time.Clock()
 
-	while run:
+	while True:
 		clock.tick(60)
 		# p2 = n.send(p)
 		for event in pygame.event.get():
@@ -166,9 +183,8 @@ def main():
 			if event.type == pygame.KEYDOWN:
 				if event.key == pygame.K_ESCAPE:
 					terminate()
-			# p.move()
-			# redrawWindow(win, p, p2)
 
 		redrawWindow(win)
-
+		# win.blit(docStretched, doc)
+		pygame.display.update()
 main()
