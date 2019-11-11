@@ -1,9 +1,10 @@
 import socket
 from thread import *
 from clue import Player
+from Dashboard import Dashboard
 import pickle
 
-server = "192.168.1.172"
+server = "192.168.1.185"
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -18,15 +19,25 @@ s.listen(2)
 print("Waiting for a connection, Server Started")
 
 players = [Player(0,0,10,10,(255,0,0)), Player(100,100,10,10, (0,0,255))] #objects
-
+ 
 
 def threaded_client(conn, player):
     conn.send(pickle.dumps(players[player]))
+
     reply = ""
     while True:
         try:
             data = pickle.loads(conn.recv(2048))
             players[player] = data
+
+	    print "Player instances has been initialized"
+	    print "Player1 location is 0,0"
+	    print "Player1 height and width is 10,10"
+	    print "Player1 color is red"
+
+	    print "Player2 location is 100,100"
+	    print "Player2 height and width is 10,10"
+	    print "Player2 color is blue"
 
             if not data:
                 print("Disconnected")
@@ -37,9 +48,10 @@ def threaded_client(conn, player):
                 else:
                     reply = players[1]
 
-                print("Received: ", data)
-                print("Sending : ", reply)
+                print("Received: Threaded_client(conn, player) ", data)
+                print("Sending : Threaded_client(conn, player)", reply)
 
+		
             conn.sendall(pickle.dumps(reply))
         except:
             break
@@ -47,9 +59,12 @@ def threaded_client(conn, player):
     print("Lost connection")
     conn.close()
 
+
+
 currentPlayer = 0
 while True:
     conn, addr = s.accept()
+
     print("Connected to:", addr)
 
     start_new_thread(threaded_client, (conn, currentPlayer))
