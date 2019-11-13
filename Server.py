@@ -18,7 +18,7 @@ except socket.error as e:
 s.listen(2)
 print("Waiting for a connection, Server Started")
 
-players = [Player(0,0,10,10,(255,0,0)), Player(100,100,10,10, (0,0,255))] #objects
+players = [Player(0,0,30,30,(255,0,0),'No accusation', 'No suggestion','D'), Player(100,100,30,30, (0,0,255), 'No accusation', 'No suggestion','S')] #objects
  
 
 def threaded_client(conn, player):
@@ -30,15 +30,6 @@ def threaded_client(conn, player):
             data = pickle.loads(conn.recv(2048))
             players[player] = data
 
-	    print "Player instances has been initialized"
-	    print "Player1 location is 0,0"
-	    print "Player1 height and width is 10,10"
-	    print "Player1 color is red"
-
-	    print "Player2 location is 100,100"
-	    print "Player2 height and width is 10,10"
-	    print "Player2 color is blue"
-
             if not data:
                 print("Disconnected")
                 break
@@ -48,8 +39,8 @@ def threaded_client(conn, player):
                 else:
                     reply = players[1]
 
-                print("Received: Threaded_client(conn, player) ", data)
-                print("Sending : Threaded_client(conn, player)", reply)
+                #print("Received: Threaded_client(conn, player) ", data)
+                #print("Sending : Threaded_client(conn, player)", reply)
 
 		
             conn.sendall(pickle.dumps(reply))

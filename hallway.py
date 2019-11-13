@@ -3,7 +3,7 @@ import pygame, sys
 # from clue import Player
 from pygame.locals import *
 import os, random
-os.chdir("/Users/tomtom/Documents/JHU_MS_CS/Foundations_Software_Eng/Clue")
+os.chdir("/home/derrick/Desktop/Clue/Clue")
 
 
 pygame.init()
