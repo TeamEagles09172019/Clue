@@ -1,0 +1,417 @@
+
+import copy
+import os
+import pygame
+import random
+import sys
+
+# from network import Network
+from pygame.locals import *
+
+FPS = 30 # frames per second to update the screen
+WINWIDTH = 800 # width of the program's window, in pixels
+WINHEIGHT = 600 # height in pixels
+HALF_WINWIDTH = int(WINWIDTH / 2)
+HALF_WINHEIGHT = int(WINHEIGHT / 2)
+
+# The total width and height of each tile in pixels.
+TILEWIDTH = 50
+TILEHEIGHT = 85
+TILEFLOORHEIGHT = 40
+CAM_MOVE_SPEED = 5 # how many pixels per frame the camera moves
+# The percentage of outdoor tiles that have additional
+# decorations 
+OUTSIDE_DECORATION_PCT = 20
+BRIGHTBLUE = ( 0, 170, 255)
+WHITE = (255, 255, 255)
+BGCOLOR = BRIGHTBLUE
+TEXTCOLOR = WHITE
+UP = 'up'
+DOWN = 'down'
+LEFT = 'left'
+RIGHT = 'right'
+
+def main():
+
+    global FPSCLOCK, DISPLAYSURF, IMAGESDICT, TILEMAPPING, WEAPONMAPPING, BASICFONT, PLAYERIMAGES, currentImage
+
+    # Pygame initialization and basic set up of the global variables.
+    pygame.init()
+    FPSCLOCK = pygame.time.Clock()
+
+    DISPLAYSURF = pygame.display.set_mode((WINWIDTH, WINHEIGHT))
+    pygame.display.set_caption('Clueless')
+    BASICFONT = pygame.font.Font('freesansbold.ttf', 18)
+
+    # A global dict value that will contain all the Pygame
+    # Surface objects returned by pygame.image.load().
+    IMAGESDICT = {'board': pygame.image.load('ClueGameBoard.png'),
+                  'weapon1': pygame.image.load('weapon1.png'),
+                  'weapon2': pygame.image.load('weapon2.png'),
+                  'weapon3': pygame.image.load('weapon3.png'),
+                  'weapon4': pygame.image.load('weapon4.png'),
+                  'player1': pygame.image.load('player1.png'),
+                  'player2': pygame.image.load('player2.png'),
+                  'corner':  pygame.image.load('Wall_Block_Tall.png'),
+                  'wall': pygame.image.load('Wood_Block_Tall.png'),
+                  'inside floor': pygame.image.load('Plain_Block.png'),
+                  'outside floor': pygame.image.load('Grass_Block.png'),
+                  'title': pygame.image.load('CluelessTitle.png')}
+
+    # These dict values are global, and map the characters that appears
+    # in the level file to the Surface object it represents.
+    TILEMAPPING = {'x': IMAGESDICT['corner'],
+                   '#': IMAGESDICT['wall'],
+                   'o': IMAGESDICT['inside floor'],
+                   ' ': IMAGESDICT['outside floor']}
+
+    WEAPONMAPPING = {'1': IMAGESDICT['weapon1'],
+                     '2': IMAGESDICT['weapon2'],
+                     '3': IMAGESDICT['weapon3'],
+                     '4': IMAGESDICT['weapon4']}
+
+    # PLAYERIMAGES is a list of all possible characters the player can be.
+    # currentImage is the index of the player's current player image.
+    currentImage = 0
+    PLAYERIMAGES = [IMAGESDICT['player1'],
+                    IMAGESDICT['player2']]
+
+    startScreen()  # show the title screen until the user presses a key
+
+    def runGame(turns, turnNum):
+        global currentImage
+        turnObj = turns(turnNum)
+        mapObj = decorateMap(turnObj['mapObj'], turnObj['startState']['player'])
+        gameStateObj = copy.deepcopy(turnObj['startState'])
+        mapNeedsRedraw = True  # set to True to call drawMap()
+        turnSurf = BASICFONT.render('Level %s of %s' % (turnNum + 1, len(turns)), 1, TEXTCOLOR)
+        turnRect = turnSurf.get_rect()
+        turnRect.bottomleft = (20, WINHEIGHT - 35)
+        mapWidth = len(mapObj) * TILEWIDTH
+        mapHeight = (len(mapObj[0]) - 1) * TILEFLOORHEIGHT + TILEHEIGHT
+        MAX_CAM_X_PAN = abs(HALF_WINHEIGHT - int(mapHeight / 2)) + TILEWIDTH
+
+        gameIsWon = False
+        # Track how much the camera has moved:
+        cameraOffsetX = 0
+        cameraOffsetY = 0
+        # Track if the keys to move the camera are being held down:
+        cameraUp = False
+        cameraDown = False
+        cameraLeft = False
+        cameraRight = False
+
+        while True:  # main game loop
+            # Reset these variables:
+            playerMoveTo = None
+            keyPressed = False
+
+            for event in pygame.event.get():  # event handling loop
+                if event.type == QUIT:
+                    # Player clicked the "X" at the corner of the window.
+                    terminate()
+
+                elif event.type == KEYDOWN:
+                    # Handle key presses
+                    keyPressed = True
+
+                    if event.key == K_LEFT:
+                        playerMoveTo = LEFT
+                    elif event.key == K_RIGHT:
+                        playerMoveTo = RIGHT
+                    elif event.key == K_UP:
+                        playerMoveTo = UP
+                    elif event.key == K_DOWN:
+                        playerMoveTo = DOWN
+
+                    # Set the camera move mode.
+                    elif event.key == K_a:
+                        cameraLeft = True
+                    elif event.key == K_d:
+                        cameraRight = True
+                    elif event.key == K_w:
+                        cameraUp = True
+                    elif event.key == K_s:
+                        cameraDown = True
+
+                    elif event.key == K_n:
+                        return 'next'
+                    elif event.key == K_b:
+                        return 'back'
+
+                    elif event.key == K_ESCAPE:
+                        terminate()  # Esc key quits.
+                    elif event.key == K_BACKSPACE:
+                        return 'reset'  # Reset the level.
+                    elif event.key == K_p:
+                        # Change the player image to the next one.
+                        currentImage += 1
+                        if currentImage >= len(PLAYERIMAGES):
+                            # After the last player image, use the first one.
+                            currentImage = 0
+                        mapNeedsRedraw = True
+
+                    elif event.type == KEYUP:
+                        # Unset the camera move mode.
+                        if event.key == K_a:
+                            cameraLeft = False
+                        elif event.key == K_d:
+                            cameraRight = False
+                        elif event.key == K_w:
+                            cameraUp = False
+                        elif event.key == K_s:
+                            cameraDown = False
+
+                    if playerMoveTo != None and not gameIsWon:
+                        # If the player pushed a key to move, make the move
+                        # (if possible) 
+                        moved = makeMove(mapObj, gameStateObj, playerMoveTo)
+                        if moved:
+                            # increment the step counter.
+                            gameStateObj['stepCounter'] += 1
+                            mapNeedsRedraw = True
+                        if gameIsWon(turnObj, gameStateObj):
+                            # level is solved, we should show the "Solved!" image.
+                            gameIsWon = True
+                            keyPressed = False
+
+
+                    DISPLAYSURF.fill(BGCOLOR)
+
+                    if mapNeedsRedraw:
+                        mapSurf = drawMap(mapObj, gameStateObj, levelObj['goals'])
+                        mapNeedsRedraw = False
+                    if cameraUp and cameraOffsetY < MAX_CAM_X_PAN:
+                        cameraOffsetY += CAM_MOVE_SPEED
+                    elif cameraDown and cameraOffsetY > -MAX_CAM_X_PAN:
+                        cameraOffsetY -= CAM_MOVE_SPEED
+                    if cameraLeft and cameraOffsetX < MAX_CAM_Y_PAN:
+                        cameraOffsetX += CAM_MOVE_SPEED
+                    elif cameraRight and cameraOffsetX > -MAX_CAM_Y_PAN:
+                        cameraOffsetX -= CAM_MOVE_SPEED
+
+                    if playerMoveTo != None and not levelIsComplete:
+                        # If the player pushed a key to move, make t
+                        #(if possible) 
+
+                        moved = makeMove(mapObj, gameStateObj, playerMoveTo)
+
+                        if moved:
+                            # increment the step counter.
+                            gameStateObj['stepCounter'] += 1
+                            mapNeedsRedraw = True
+
+
+                    # Adjust mapSurf's Rect object based on the came
+                    mapSurfRect = mapSurf.get_rect()
+                    mapSurfRect.center = (HALF_WINWIDTH + cameraOffsetX, HALF_WINHEIGHT + cameraOffsetY)
+
+                    # Draw mapSurf to the DISPLAYSURF Surface object.
+                    DISPLAYSURF.blit(mapSurf, mapSurfRect)
+
+                    DISPLAYSURF.blit(turnSurf, turnRect)
+                    stepSurf = BASICFONT.render('Steps: %s' % (gameStateObj['stepCounter']), 1, TEXTCOLOR)
+                    stepSurf.get_rect()
+                    stepRect.bottomleft = (20, WINHEIGHT -10)
+                    DISPLAYSURF.blit(turnSurf, turnRect)
+
+                    if gameWon:
+                        if keyPressed:
+                            return 'Game Won!'
+
+                pygame.display.update()  # draw DISPLAYSURF to the screen.
+                FPSCLOCK.tick()
+
+def startScreen():
+    """Display the start screen (which has the title and instructions)
+    until the player presses a key. Returns None."""
+
+    # Position the title image.
+    titleRect = IMAGESDICT['title'].get_rect()
+    topCoord = 50 # topCoord tracks where to position the top of the text
+    titleRect.top = topCoord
+    titleRect.centerx = HALF_WINWIDTH
+    topCoord += titleRect.height
+
+    instructionText = ['Push the stars over the marks.',
+                       'Arrow keys to move, WASD for camera control, P to change character.',
+                       'Backspace to reset level, Esc to quit.',]
+
+
+    # Start with drawing a blank color to the entire window:
+    DISPLAYSURF.fill(BGCOLOR)
+
+    # Draw the title image to the window:
+    DISPLAYSURF.blit(IMAGESDICT['title'], titleRect)
+
+    # Position and draw the text.
+    for i in range(len(instructionText)):
+        instSurf = BASICFONT.render(instructionText[i], 1, TEXTCOLOR)
+        instRect = instSurf.get_rect()
+        topCoord += 10 # 10 pixels will go in between each line of text.
+        instRect.top = topCoord
+        instRect.centerx = HALF_WINWIDTH
+        topCoord += instRect.height # Adjust for the height of the line.
+        DISPLAYSURF.blit(instSurf, instRect)
+
+    while True: # Main loop for the start screen.
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                terminate()
+            elif event.type == KEYDOWN:
+                if event.key == K_ESCAPE:
+                    terminate()
+                return # user has pressed a key, so return.
+
+        # Display the DISPLAYSURF contents to the actual screen.
+        pygame.display.update()
+        FPSCLOCK.tick()
+        
+def isWall(mapObj, x, y):
+    """Returns True if the (x, y) position on
+    the map is a wall, otherwise return False."""
+    if x < 0 or x >= len(mapObj) or y < 0 or y >= len(mapObj[x]):
+        return False # x and y aren't actually on the map.
+    elif mapObj[x][y] in ('#', 'x'):
+        return True # wall is blocking
+    return False
+
+def decorateMap(mapObj, startxy):
+    """Makes a copy of the given map object and modifies it.
+    Here is what is done to it:
+    * Walls that are corners are turned into corner pieces.
+    * The outside/inside floor tile distinction is made.
+    * """
+
+    startx, starty = startxy # Syntactic sugar
+    # Copy the map object so we don't modify the original passed
+
+    mapObjCopy = copy.deepcopy(mapObj)
+
+    # Remove the non-wall characters from the map data
+    for x in range(len(mapObjCopy)):
+        for y in range(len(mapObjCopy[0])):
+            if mapObjCopy[x][y] in ('$', '.', '@', '+', '*'):
+                mapObjCopy[x][y] = ' '
+
+                # Convert the adjoined walls into corner tiles.
+                for x in range(len(mapObjCopy)):
+                    for y in range(len(mapObjCopy[0])):
+                        if mapObjCopy[x][y] == '#':
+                            if (isWall(mapObjCopy, x, y - 1) and isWall(mapObjCopy, x + 1, y)) or \
+                                    (isWall(mapObjCopy, x + 1, y) and isWall(mapObjCopy, x, y + 1)) or \
+                                    (isWall(mapObjCopy, x, y + 1) and isWall(mapObjCopy, x - 1, y)) or \
+                                    (isWall(mapObjCopy, x - 1, y) and isWall(mapObjCopy, x, y - 1)):
+                                        mapObjCopy[x][y] = 'x'
+
+                            elif mapObjCopy[x][y] == ' ' and random.randint(0, 99) < OUTSIDE_DECORATION_PCT:
+                                mapObjCopy[x][y] = random.choice(list(WEAPONMAPPING.keys()))
+                return mapObjCopy
+
+def isBlocked(mapObj, gameStateObj, x, y):
+    """Returns True if the (x, y) position on the map is
+    blocked by a wall otherwise return False."""
+
+    if isWall(mapObj, x, y):
+        return True
+    elif x < 0 or x >= len(mapObj) or y < 0 or y >= len(mapObj[x]):
+        return True  # x and y aren't actually on the map.
+
+    return False
+
+def makeMove(mapObj, gameStateObj, playerMoveTo):
+    # Make sure the player can move in the direction they want.
+    playerx, playery = gameStateObj['player']
+
+    
+    # The code for handling each of the directions is so similar aside
+    # from adding or subtracting 1 to the x/y coordinates. We can
+    # simplify it by using the xOffset and yOffset variables.
+    if playerMoveTo == UP:
+        xOffset = 0
+        yOffset = -1
+    elif playerMoveTo == RIGHT:
+        xOffset = 1
+        yOffset = 0
+    elif playerMoveTo == DOWN:
+        xOffset = 0
+        yOffset = 1
+    elif playerMoveTo == LEFT:
+        xOffset = -1
+        yOffset = 0
+
+    # See if the player can move in that direction.
+    if isWall(mapObj, playerx + xOffset, playery + yOffset):
+        return False
+
+        # Move the player upwards.
+        gameStateObj['player'] = (playerx + xOffset, playery + yOffset)
+        return True
+
+def startGame():
+    turns = []  # Will contain a list of turns objects.
+    turnNum = 0
+    mapTextLines = []  
+    mapObj = []
+
+    # Create level object and starting game state object.
+    gameStateObj = {'player': (startx, starty),
+                    'stepCounter': 0,
+                    'stars': stars}
+
+    turnObj = {'width': maxWidth,
+                'height': len(mapObj),
+                'mapObj': mapObj,
+                'goals': goals,
+                'startState': gameStateObj}
+
+    turns.append(turnObj)
+
+    # Reset the variables for reading the next map.
+    mapTextLines = []
+    mapObj = []
+    gameStateObj = {}
+    turnNum += 1
+    return turns
+
+def drawMap(mapObj, gameStateObj, goals):
+    """Draws the map to a Surface object, including the players."""
+    mapSurfWidth = len(mapObj) * TILEWIDTH
+    mapSurfHeight = (len(mapObj[0]) - 1) * TILEFLOORHEIGHT + TILEHEIGHT
+    mapSurf = pygame.Surface((mapSurfWidth, mapSurfHeight))
+    mapSurf.fill(BGCOLOR) # start with a blank color on the surface.
+
+    for x in range(len(mapObj)):
+        for y in range(len(mapObj[x])):
+            spaceRect = pygame.Rect((x * TILEWIDTH, y * TILEFLOORHEIGHT, TILEWIDTH, TILEHEIGHT))
+            if mapObj[x][y] in TILEMAPPING:
+                baseTile = TILEMAPPING[mapObj[x][y]]
+
+            elif mapObj[x][y] in WEAPONMAPPING:
+                baseTile = TILEMAPPING[' ']
+
+            # First draw the base ground/wall tile.
+            mapSurf.blit(baseTile, spaceRect)
+
+            if mapObj[x][y] in WEAPONMAPPING:
+                mapSurf.blit(WEAPONMAPPING[mapObj[x][y]], spaceRect)
+
+            # Last draw the player on the board.
+            if (x, y) == gameStateObj['player1']:
+                mapSurf.blit(PLAYERIMAGES[currentImage], spaceRect)
+            
+            if (x, y) == gameStateObj['player2']:
+                mapSurf.blit(PLAYERIMAGES[currentImage], spaceRect)
+
+    return mapSurf
+
+def isGameWon(turnObj, gameStateObj):
+    """Returns True if accusation is correct"""
+    return True
+
+def terminate():
+    pygame.quit()
+    sys.exit()
+
+if __name__ == '__main__':
+    main()
