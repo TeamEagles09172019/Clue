@@ -233,8 +233,7 @@ def startScreen():
     titleRect.centerx = HALF_WINWIDTH
     topCoord += titleRect.height
 
-    instructionText = ['Push the stars over the marks.',
-                       'Arrow keys to move, WASD for camera control, P to change character.',
+    instructionText = ['Arrow keys to move, WASD for camera control, P to change character.',
                        'Backspace to reset level, Esc to quit.',]
 
 
@@ -282,10 +281,11 @@ def decorateMap(mapObj, startxy):
     * Walls that are corners are turned into corner pieces.
     * The outside/inside floor tile distinction is made.
     * """
-
+    
+    # This needs to be random 
     startx, starty = startxy # Syntactic sugar
     # Copy the map object so we don't modify the original passed
-
+    
     mapObjCopy = copy.deepcopy(mapObj)
 
     # Remove the non-wall characters from the map data
