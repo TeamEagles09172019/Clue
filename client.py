@@ -69,29 +69,29 @@ def draw(col1, col2, row1, row2):
 
 def drawHalls(win):
 	## Study to Library
-	draw(2,4,6,11)
+	draw(3,4,6,11)
 	## Library to Conservatory
-	draw(2,4,16,21)
+	draw(3,4,16,21)
 	## Conservatory to Ballroom
-	draw(6,10,23,25)
+	draw(6,10,24,25)
 	## Ballroom to Kitchen
-	draw(18,22,23,25)
+	draw(18,22,24,25)
 	## Kitchen to Dining
-	draw(24,26,16,21)
+	draw(24,25,16,21)
 	## Dining to Lounge
-	draw(24,26,6,11)
+	draw(24,25,6,11)
 	## Lounge to Hall
-	draw(18,22,2,4)
+	draw(18,22,3,4)
 	## Study to Hall
-	draw(6,10,2,4)
+	draw(6,10,3,4)
 	## Library to Billiard
-	draw(6,10,12,14)
+	draw(6,10,13,14)
 	## Billiard to Dining
-	draw(18,22,12,14)
+	draw(18,22,13,14)
 	## Billiard to Ballroom
-	draw(13,15,17,21)
+	draw(13,14,17,21)
 	## Billiard to Hall
-	draw(13,15,6,10)
+	draw(13,14,6,10)
 
 def redrawWindow(win, player, player2):
 
@@ -184,7 +184,7 @@ def main():
 	clock = pygame.time.Clock()
 	run = True
 	while run:
-		clock.tick(60)
+		clock.tick(900)
 		p2 = n.send(p)
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:

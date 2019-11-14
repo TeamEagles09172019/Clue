@@ -1,6 +1,7 @@
 import pygame
 from Tkinter import *
 import threading
+import random
 
 width = 625
 height = 625
@@ -24,19 +25,20 @@ Show_Accusation_label = ''
 inputUser4 = ''
 
 class Player():
-    def __init__(self, x, y, width, height, color, accusation, suggestion, name):
+    def __init__(self, x, y, width, height, color, accusation, suggestion, name, die_roll_value):
         self.x = x
         self.y = y
         self.width = width
         self.height = height
         self.color = color
         self.rect = (x,y,width,height)
-        self.vel = 1
+        self.vel = 2
 	self.player_name = ''
 	self.text_variable = ''
 	self.accusation = accusation
 	self.suggestion = suggestion
 	self.name = name
+	self.die_roll_value = die_roll_value
 
     def draw(self, win):
 	font = pygame.font.SysFont(None,25) # default font set at 21 points
@@ -55,6 +57,8 @@ class Player():
 			print 'Accusation: ', self.accusation
 		if self.suggestion != 'No suggestion':
 			print 'Suggestion ', self.suggestion
+		if self.die_roll_value:
+			print ('{0} rolled a {1}'.format(self.name, self.die_roll_value))
     def make_accusation_and_suggestion(self):
 	keys = pygame.key.get_pressed()
 	if keys[pygame.K_f]:
@@ -62,6 +66,7 @@ class Player():
 		print '* 1 - Make Accusation     *'
 		print '* 2 - Make Suggestion     *'
 		print '* 3 - Disprove Accusation *'
+		print '* 4 - Roll Dice           *'
 		print '***************************'
 		choice = raw_input('Enter choice: ')
 		if choice == '1':	
@@ -70,8 +75,18 @@ class Player():
 			self.suggestion = raw_input('Enter suggestion: ')
 		if choice == '3':
 			pass
+		if choice == '4':
+			self.die_roll_value = random.randint(0, 6)
+			print 'You rolled a ' , self.die_roll_value
 
+
+    def die_roll(self):
+	keys = pygame.key.get_pressed()
 	
+	if keys[pygame.K_d]:
+		self.die_roll_value = random.randint(0, 6)
+		 
+    
     def move(self):
         keys = pygame.key.get_pressed()
 
@@ -86,6 +101,10 @@ class Player():
 
         if keys[pygame.K_DOWN]:
             self.y += self.vel
+	
+	#self.is_valid_move(3,4,6,11)
+	#self.is_valid_move(3,4,16,21)
+
 
         self.rect = (self.x, self.y, self.width, self.height)
  	self.update()

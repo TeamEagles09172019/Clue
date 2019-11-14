@@ -18,7 +18,8 @@ except socket.error as e:
 s.listen(2)
 print("Waiting for a connection, Server Started")
 
-players = [Player(0,0,30,30,(255,0,0),'No accusation', 'No suggestion','D'), Player(100,100,30,30, (0,0,255), 'No accusation', 'No suggestion','S')] #objects
+offset = (30 + 1)
+players = [Player(3 * offset,6 * offset,31,31,(255,0,0),'No accusation', 'No suggestion','D',-1), Player(9 * offset,3 * offset,31,31, (0,0,255), 'No accusation', 'No suggestion','S',-1)] #objects
  
 
 def threaded_client(conn, player):
