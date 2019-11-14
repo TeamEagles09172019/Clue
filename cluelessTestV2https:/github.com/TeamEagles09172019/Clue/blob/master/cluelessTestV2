@@ -190,7 +190,7 @@ def main():
                     elif cameraRight and cameraOffsetX > -MAX_CAM_Y_PAN:
                         cameraOffsetX -= CAM_MOVE_SPEED
 
-                    if playerMoveTo != None and not levelIsComplete:
+                    if playerMoveTo != None and not turnIsComplete:
                         # If the player pushed a key to move, make t
                         #(if possible) 
 
@@ -357,7 +357,7 @@ def startGame():
     # Create level object and starting game state object.
     gameStateObj = {'player': (startx, starty),
                     'stepCounter': 0,
-                    'stars': stars}
+                    'weapon': weapon1}
 
     turnObj = {'width': maxWidth,
                 'height': len(mapObj),
