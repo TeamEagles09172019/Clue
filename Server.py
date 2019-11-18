@@ -4,7 +4,7 @@ from clue import Player
 from Dashboard import Dashboard
 import pickle
 
-server = "192.168.1.185"
+server = "10.0.0.76"
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -19,7 +19,6 @@ s.listen(2)
 print("Waiting for a connection, Server Started")
 
 offset = (30 + 1)
-players = [Player(3 * offset,6 * offset,31,31,(255,0,0),'No accusation', 'No suggestion','D',-1), Player(9 * offset,3 * offset,31,31, (0,0,255), 'No accusation', 'No suggestion','S',-1)] #objects
  
 
 def threaded_client(conn, player):
@@ -52,6 +51,7 @@ def threaded_client(conn, player):
     conn.close()
 
 
+players = [Player(3 * offset,6 * offset,31,31,(255,0,0),'No accusation', 'No suggestion',-1), Player(9 * offset,3 * offset,31,31, (0,0,255), 'No accusation', 'No suggestion',-1)] #objects
 
 currentPlayer = 0
 while True:

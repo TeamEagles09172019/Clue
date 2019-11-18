@@ -183,17 +183,19 @@ def main():
    	p = n.getP()
 	clock = pygame.time.Clock()
 	run = True
+	counter = 0
 	while run:
 		clock.tick(900)
 		p2 = n.send(p)
 		for event in pygame.event.get():
 			if event.type == pygame.QUIT:
 				run = False
-			#if event.type == pygame.KEYDOWN:
-				#if event.key == pygame.K_ESCAPE:
-					#terminate()
+		if counter == 0:		
+			p.player_info()
+			
 		p.move()
 		p.make_accusation_and_suggestion()
 		redrawWindow(win, p, p2)
+		counter += 1
 		#pygame.display.update()
 main()
