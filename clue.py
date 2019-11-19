@@ -1,6 +1,5 @@
 import pygame
 from Tkinter import *
-import threading
 import random
 
 width = 625
@@ -40,6 +39,7 @@ class Player():
 		self.die_roll_value = die_roll_value
 	
 	
+		
 	def player_info(self):
 		print '**********'
 		print '*C L U E *'

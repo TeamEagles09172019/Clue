@@ -4,7 +4,7 @@ from network import Network
 from clue import Player
 from pygame.locals import *
 import os, random
-#os.chdir("/home/derrick/Desktop/Clue/Clue")
+from Deck import Deck
 
 
 pygame.init()
@@ -176,12 +176,22 @@ def redrawWindow(win, player, player2):
 def terminate():
 	pygame.quit()
 	sys.exit()
-
+	
+def card_solution(DC, NoP):
+	keys = pygame.key.get_pressed()
+	if keys[pygame.K_d]:
+		for i in range(NoP):
+			print('Player ' + str(i) + ' cards: ', ', '.join(DC[i]))
 
 def main():
 	n = Network()
    	p = n.getP()
 	clock = pygame.time.Clock()
+	
+	
+	NoP = 1
+	D = Deck()
+	DC = D.DistributeCards(NoP)
 	run = True
 	counter = 0
 	while run:
@@ -192,7 +202,8 @@ def main():
 				run = False
 		if counter == 0:		
 			p.player_info()
-			
+		
+		card_solution(DC, NoP)
 		p.move()
 		p.make_accusation_and_suggestion()
 		redrawWindow(win, p, p2)

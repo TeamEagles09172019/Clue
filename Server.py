@@ -4,7 +4,9 @@ from clue import Player
 from Dashboard import Dashboard
 import pickle
 
-server = "10.0.0.76"
+hostname = socket.gethostname()
+IPAddr = socket.gethostbyname(hostname)
+server = IPAddr
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
