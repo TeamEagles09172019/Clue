@@ -181,7 +181,7 @@ def card_solution(DC, NoP):
 	keys = pygame.key.get_pressed()
 	if keys[pygame.K_d]:
 		for i in range(NoP):
-			print('Player ' + str(i) + ' cards: ', ', '.join(DC[i]))
+			print('Your cards ' + str(i) + ' cards: ', ', '.join(DC[i]))
 
 def main():
 	n = Network()
