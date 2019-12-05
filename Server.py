@@ -38,12 +38,14 @@ def threaded_client(conn, player):
             else:
                 if player == 1:
                     reply = players[0]
+                    print 'hello', reply
                 else:
                     reply = players[1]
+                    print' hello', reply
 
                 #print("Received: Threaded_client(conn, player) ", data)
                 #print("Sending : Threaded_client(conn, player)", reply)
-
+			
 		
             conn.sendall(pickle.dumps(reply))
         except:
@@ -53,7 +55,7 @@ def threaded_client(conn, player):
     conn.close()
 
 
-players = [Player(3 * offset,6 * offset,31,31,(255,0,0),'No accusation', 'No suggestion',-1), Player(9 * offset,3 * offset,31,31, (0,0,255), 'No accusation', 'No suggestion',-1)] #objects
+players = [Player(3 * offset,6 * offset,31,31,(255,0,0),'No accusation', 'No suggestion','0.0.0.0',5555), Player(9 * offset,3 * offset,31,31, (0,0,255), 'No accusation', 'No suggestion','0.0.0.0',5556)] #objects
 
 currentPlayer = 0
 while True:

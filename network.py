@@ -8,14 +8,10 @@ IPAddr = socket.gethostbyname(hostname)
 class Network:
     def __init__(self):
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server = IPAddr
-			
+        self.server = IPAddr		
         self.port = 5555
         self.addr = (self.server, self.port)
         self.p = self.connect()
-	#self.accusation = self.connect()
-	#self.suggestion = self.connect()
-
 
     def getP(self):
         return self.p
@@ -25,7 +21,7 @@ class Network:
 
     def get_suggestion(self):
 	return self.suggestion
-
+		
     def connect(self):
         try:
             self.client.connect(self.addr)

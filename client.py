@@ -165,7 +165,9 @@ def redrawWindow(win, player, player2):
 	
 	drawHalls(win)
 	player.draw(win)
-    	player2.draw(win)
+	player2.draw(win)
+	
+	
 	player.show_accusation_and_suggestion()
 	player2.show_accusation_and_suggestion()
 
@@ -181,13 +183,12 @@ def card_solution(DC, NoP):
 	keys = pygame.key.get_pressed()
 	if keys[pygame.K_d]:
 		for i in range(NoP):
-			print('Your cards ' + str(i) + ' cards: ', ', '.join(DC[i]))
+			print('Your cards: ', ', '.join(DC[i]))
 
 def main():
 	n = Network()
    	p = n.getP()
 	clock = pygame.time.Clock()
-	
 	
 	NoP = 1
 	D = Deck()

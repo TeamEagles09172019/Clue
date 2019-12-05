@@ -1,6 +1,7 @@
 import pygame
 from Tkinter import *
 import random
+import socket
 
 width = 625
 height = 625
@@ -24,7 +25,7 @@ Show_Accusation_label = ''
 inputUser4 = ''
 
 class Player():
-	def __init__(self, x, y, width, height, color, accusation, suggestion, die_roll_value):
+	def __init__(self, x, y, width, height, color, accusation, suggestion, ipAddr, port):
 		self.x = x
 		self.y = y
 		self.width = width
@@ -36,8 +37,9 @@ class Player():
 		self.accusation = accusation
 		self.suggestion = suggestion
 		self.name = ''
-		self.die_roll_value = die_roll_value
-	
+		self.approve_disprove = ''
+		self.ip = ipAddr
+		self.port = port
 	
 		
 	def player_info(self):
@@ -58,14 +60,17 @@ class Player():
 		win.blit(textobj, textrect)
 		
 	def show_accusation_and_suggestion(self):
-		keys = pygame.key.get_pressed()
-		if keys[pygame.K_s]:
-			if self.accusation != 'No accusation':
-				print 'Accusation: ', self.accusation
-			if self.suggestion != 'No suggestion':
-				print 'Suggestion ', self.suggestion
-			if self.die_roll_value:
-				print ('{0} rolled a {1}'.format(self.name, self.die_roll_value))
+		#keys = pygame.key.get_pressed()
+		#if keys[pygame.K_s]:
+		hostname = socket.gethostname()
+		IPAddr = socket.gethostbyname(hostname)
+		self.ip = IPAddr
+		if self.accusation != 'No accusation':
+			print self.name +"'s("+self.ip+ ':' + str(self.port) + ')' +' accusation: ', self.accusation
+		if self.suggestion != 'No suggestion':
+			print self.name + "'s("+self.ip+':' + str(self.port) + ')' + ' suggestion: ', self.suggestion
+			
+		#print (accusers_ip adresss, self.approve_disprove)
 				
 	def make_accusation_and_suggestion(self):
 		keys = pygame.key.get_pressed()
@@ -74,7 +79,7 @@ class Player():
 			print '* 1 - Make Accusation     *'
 			print '* 2 - Make Suggestion     *'
 			print '* 3 - Disprove Accusation *'
-			print '* 4 - Roll Dice           *'
+			print '* 4 - Approve Accusation  *'
 			print '***************************'
 			choice = raw_input('Enter choice: ')
 			if choice == '1':	
@@ -82,18 +87,11 @@ class Player():
 			if choice == '2':
 				self.suggestion = raw_input('Enter suggestion: ')
 			if choice == '3':
-				pass
+				self.approve_disprove = False
+				#disconnect accusers_ip
 			if choice == '4':
-				self.die_roll_value = random.randint(0, 6)
-				print 'You rolled a ' , self.die_roll_value
-
-
-	def die_roll(self):
-		keys = pygame.key.get_pressed()
-	
-		if keys[pygame.K_d]:
-			self.die_roll_value = random.randint(0, 6)
-		 
+				self.approve_disprove = True
+				
 	def move(self):
 		keys = pygame.key.get_pressed()
 
