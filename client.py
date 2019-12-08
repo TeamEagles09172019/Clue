@@ -15,6 +15,7 @@ pygame.display.set_caption("Client")
 
 
 clientNumber = 0
+offset = (30 + 1)
 
 TILE_WIDTH = 30
 TILE_HEIGHT = 30
@@ -205,8 +206,9 @@ def main():
 	DC = D.DistributeCards(NoP)
 	run = True
 	counter = 0
-	x= 0
-	y= 0
+	x= 0 
+	y= 0 
+	
 	while run:
 		clock.tick(900)
 		p2 = n.send(p)

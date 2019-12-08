@@ -1,11 +1,8 @@
 import pygame
-from Tkinter import *
 import random
 import socket
 
 
-
-TESTING = 1
 width = 625
 height = 625
 win = pygame.display.set_mode((width, height))
@@ -105,31 +102,69 @@ class Player():
 			print self.name +"'s("+self.ip+ ':' + str(self.port) + ')' +' accusation: ', self.accusation
 		if self.suggestion != 'No suggestion':
 			print self.name + "'s("+self.ip+':' + str(self.port) + ')' + ' suggestion: ', self.suggestion
-			
+	
+		
+	def check_room(self, col1, col2, row1, row2, x, y, room, state):
+		offset = (30 + 1)
+
+		if x == 0 or y == 0:
+			x = x + offset
+			y = y + offset
+		
+		
+		if x in range(col1, col2) and y in range(row1, row2):
+			if state == 'accusation':
+				name = raw_input('Enter name of player: ')	
+				weapon = raw_input('Enter weapon: ')
+				if name in PlayerNames.values() and weapon in WeaponNames.values():
+					self.accusation = self.name + ' accuses ' + name + ','+ weapon +','+ room
+				else:
+					print 'Invalid Input!'
+					self.accusation = ''
+					
+			if state == 'suggestion':
+				name = raw_input('Enter name of player: ')	
+				weapon = raw_input('Enter weapon: ')
+				if name in PlayerNames.values() and weapon in WeaponNames.values():
+					self.suggestion = name + ','+ weapon +','+ room
+				else:
+					print 'Invalid Input!'
+					self.suggestion = ''
+		else:
+			print 'You have to be in ' + room + ' to make an accusation or suggestion!'
+			pass
 				
 	def make_accusation_and_suggestion(self, x,y,choice):
+		offset = (30 + 1)
+		#Do this only if player is in a room
 		if choice == '1':	
-			#Do this only if player is in a room
-			room = 'N/A'
-			name = raw_input('Enter name of player: ')	
-			weapon = raw_input('Enter weapon: ')
 			
-			if name in PlayerNames.values() and weapon in WeaponNames.values():
-				self.accusation = self.name + ' accuses ' + name + ','+ weapon +','+ room
-			else:
-				self.accusation = ''
-				
+			self.check_room(1 * offset,6 * offset,11 * offset,16 * offset, x,y,'Library', 'accusation')			
+			self.check_room(10 * offset,18 * offset,10 * offset,17 * offset, x,y,'Billiard','accusation')
+			self.check_room(22 * offset,27 * offset,11 * offset,16 * offset, x,y,'Dining','accusation')
+			
+			self.check_room(1 * offset,6 * offset,21 * offset,28 * offset, x,y,'Conservatory','accusation')
+			self.check_room(10 * offset,18 * offset,21 * offset,28 * offset, x,y,'Ballroom','accusation')
+			self.check_room(22 * offset,27 * offset,21 * offset,28 * offset, x,y,'Kitchen','accusation')
+			
+			self.check_room(1 * offset,6 * offset,1 * offset,6 * offset, x,y,'Study','accusation')
+			self.check_room(10 * offset,18 * offset,1 * offset,6 * offset, x,y,'Hall','accusation')
+			self.check_room(22 * offset,27 * offset,1 * offset,6 * offset, x,y,'Lounge','accusation')
+			
+		#Do this only if player is in a room
 		if choice == '2':
-			#Do this only if player is in a room
-			room = 'N/A'
-			name = raw_input('Enter name of player: ')	
-			weapon = raw_input('Enter weapon: ')
+			self.check_room(1 * offset,6 * offset,11 * offset,16 * offset, x,y,'Library', 'suggestion')
+			self.check_room(10 * offset,18 * offset,10 * offset,17 * offset, x,y,'Billiard','suggestion')
+			self.check_room(22 * offset,27 * offset,11 * offset,16 * offset, x,y,'Dining','suggestion')
 			
-			if name in PlayerNames.values() and weapon in WeaponNames.values():
-				self.suggestion = name + ','+ weapon +','+ room
-			else:
-				self.suggestion = ''
-				
+			self.check_room(1 * offset,6 * offset,21 * offset,28 * offset, x,y,'Conservatory','suggestion')
+			self.check_room(10 * offset,18 * offset,21 * offset,28 * offset, x,y,'Ballroom','suggestion')
+			self.check_room(22 * offset,27 * offset,21 * offset,28 * offset, x,y,'Kitchen','suggestion')
+		
+			self.check_room(1 * offset,6 * offset,1 * offset,6 * offset, x,y,'Study','suggestion')
+			self.check_room(10 * offset,18 * offset,1 * offset,6 * offset, x,y,'Hall','suggestion')
+			self.check_room(22 * offset,27 * offset,1 * offset,6 * offset, x,y,'Lounge','suggestion')
+		
 		if choice == '3':
 			self.approve_disprove = False
 		if choice == '4':
