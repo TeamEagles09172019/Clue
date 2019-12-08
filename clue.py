@@ -3,6 +3,9 @@ from Tkinter import *
 import random
 import socket
 
+
+
+TESTING = 1
 width = 625
 height = 625
 win = pygame.display.set_mode((width, height))
@@ -24,6 +27,40 @@ text_variable = ''
 Show_Accusation_label = ''
 inputUser4 = ''
 
+PlayerNames = {
+    -1: '-',
+    0 : 'Colonel Mustard',
+    1 : 'Miss Scarlet',
+    2 : 'Professor Plum',
+    3 : 'Mr. Green',
+    4 : 'Mrs. White',
+    5 : 'Mrs. Peacock'
+    }
+
+WeaponNames = {
+    -1: '-',
+    0 : 'Rope',
+    1 : 'Lead Pipe',
+    2 : 'Knife',
+    3 : 'Wrench',
+    4 : 'Candlestick',
+    5 : 'Revolver'
+    }
+
+RoomNames = {
+    -1: '-',
+    0 : 'Study Room',
+    1 : 'Hall',
+    2 : 'Lounge',
+    3 : 'Library',
+    4 : 'Billiard Room',
+    5 : 'Dining Room',
+    6 : 'Conservatory',
+    7 : 'Ball Room',
+    8 : 'Kitchen'
+    }
+
+
 class Player():
 	def __init__(self, x, y, width, height, color, accusation, suggestion, ipAddr, port):
 		self.x = x
@@ -40,8 +77,9 @@ class Player():
 		self.approve_disprove = ''
 		self.ip = ipAddr
 		self.port = port
-	
-		
+		self.location = ''
+
+			
 	def player_info(self):
 		print '**********'
 		print '*C L U E *'
@@ -58,10 +96,8 @@ class Player():
 		textrect = textobj.get_rect()
 		textrect.topleft = (self.x, self.y)
 		win.blit(textobj, textrect)
-		
+	
 	def show_accusation_and_suggestion(self):
-		#keys = pygame.key.get_pressed()
-		#if keys[pygame.K_s]:
 		hostname = socket.gethostname()
 		IPAddr = socket.gethostbyname(hostname)
 		self.ip = IPAddr
@@ -70,49 +106,60 @@ class Player():
 		if self.suggestion != 'No suggestion':
 			print self.name + "'s("+self.ip+':' + str(self.port) + ')' + ' suggestion: ', self.suggestion
 			
-		#print (accusers_ip adresss, self.approve_disprove)
 				
-	def make_accusation_and_suggestion(self):
-		keys = pygame.key.get_pressed()
-		if keys[pygame.K_f]:
-			print '***************************'
-			print '* 1 - Make Accusation     *'
-			print '* 2 - Make Suggestion     *'
-			print '* 3 - Disprove Accusation *'
-			print '* 4 - Approve Accusation  *'
-			print '***************************'
-			choice = raw_input('Enter choice: ')
-			if choice == '1':	
-				self.accusation = raw_input('Enter accusation: ')
-			if choice == '2':
-				self.suggestion = raw_input('Enter suggestion: ')
-			if choice == '3':
-				self.approve_disprove = False
-				#disconnect accusers_ip
-			if choice == '4':
-				self.approve_disprove = True
+	def make_accusation_and_suggestion(self, x,y,choice):
+		if choice == '1':	
+			#Do this only if player is in a room
+			room = 'N/A'
+			name = raw_input('Enter name of player: ')	
+			weapon = raw_input('Enter weapon: ')
+			
+			if name in PlayerNames.values() and weapon in WeaponNames.values():
+				self.accusation = self.name + ' accuses ' + name + ','+ weapon +','+ room
+			else:
+				self.accusation = ''
 				
-	def move(self):
-		keys = pygame.key.get_pressed()
+		if choice == '2':
+			#Do this only if player is in a room
+			room = 'N/A'
+			name = raw_input('Enter name of player: ')	
+			weapon = raw_input('Enter weapon: ')
+			
+			if name in PlayerNames.values() and weapon in WeaponNames.values():
+				self.suggestion = name + ','+ weapon +','+ room
+			else:
+				self.suggestion = ''
+				
+		if choice == '3':
+			self.approve_disprove = False
+		if choice == '4':
+			self.approve_disprove = True
+				
+	def move(self, direction):
 
-		if keys[pygame.K_LEFT]:
+		if direction == 'LEFT':
 			self.x -= self.vel
+			self.rect = (self.x, self.y, self.width, self.height)
+			self.update()
+			return self.x
 
-		if keys[pygame.K_RIGHT]:
+		if direction == 'RIGHT':
 			self.x += self.vel
+			self.rect = (self.x, self.y, self.width, self.height)
+			self.update()
+			return self.x
 
-		if keys[pygame.K_UP]:
+		if direction == 'UP':
 			self.y -= self.vel
+			self.rect = (self.x, self.y, self.width, self.height)
+			self.update()
+			return self.y
 
-		if keys[pygame.K_DOWN]:
+		if direction == 'DOWN':
 			self.y += self.vel
-	
-	#self.is_valid_move(3,4,6,11)
-	#self.is_valid_move(3,4,16,21)
-
-
-		self.rect = (self.x, self.y, self.width, self.height)
-		self.update()
+			self.rect = (self.x, self.y, self.width, self.height)
+			self.update()
+			return self.y
 
 	def update(self):
 		self.rect = (self.x, self.y, self.width, self.height)

@@ -49,8 +49,13 @@ def drawText(text, font, surface, x, y):
 # docImage = pygame.image.load("images/doc.bmp")
 # docStretched = pygame.transform.scale(docImage, (40,40))
 
-def die():
-	random.randint(1,7)
+def show_dashboard():
+		print '***************************'
+		print '* 1 - Make Accusation     *'
+		print '* 2 - Make Suggestion     *'
+		print '* 3 - Disprove Accusation *'
+		print '* 4 - Approve Accusation  *'
+		print '***************************'
 
 def move(win):
 	# doctor
@@ -186,7 +191,12 @@ def card_solution(DC, NoP):
 			print('Your cards: ', ', '.join(DC[i]))
 
 def main():
-	n = Network()
+	#hostname = socket.gethostname()
+	#IPAddr = socket.gethostbyname(hostname)
+	Server_IP = '10.0.0.76'
+	port_num = 5555
+	
+	n = Network(Server_IP, port_num)
    	p = n.getP()
 	clock = pygame.time.Clock()
 	
@@ -195,6 +205,8 @@ def main():
 	DC = D.DistributeCards(NoP)
 	run = True
 	counter = 0
+	x= 0
+	y= 0
 	while run:
 		clock.tick(900)
 		p2 = n.send(p)
@@ -204,9 +216,32 @@ def main():
 		if counter == 0:		
 			p.player_info()
 		
+		keys = pygame.key.get_pressed()
 		card_solution(DC, NoP)
-		p.move()
-		p.make_accusation_and_suggestion()
+		#p.move()
+
+		if keys[pygame.K_LEFT]:
+			x = p.move('LEFT')
+
+		if keys[pygame.K_RIGHT]:
+			x = p.move('RIGHT')
+
+		if keys[pygame.K_UP]:
+			y = p.move('UP')
+
+		if keys[pygame.K_DOWN]:
+			y = p.move('DOWN')
+
+		#p.rect(x, y, p.width, p.height)
+		#p.update()
+		
+		if keys[pygame.K_f]:
+			show_dashboard()
+			choice = raw_input('Enter choice: ')
+			p.make_accusation_and_suggestion(x,y,choice)
+			
+		
+		
 		redrawWindow(win, p, p2)
 		counter += 1
 		#pygame.display.update()
