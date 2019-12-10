@@ -116,7 +116,7 @@ RoomNames = {
 
 
 class Player():
-	def __init__(self, x, y, width, height, color, accusation, suggestion, ipAddr, port, room):
+	def __init__(self, x, y, width, height, color, accusation, suggestion, ipAddr, port, room, cards):
 		self.x = x
 		self.y = y
 		self.width = width
@@ -131,6 +131,10 @@ class Player():
 		self.ip = ipAddr
 		self.port = port
 		self.room = room
+		self.shuffled_cards = cards
+		
+	def show_cards(self):
+		print('Your cards: ', self.shuffled_cards)
 		
 	def identifyRoom(self, col, row):
 		## iterate through the list of tile_id col/row values to find which room holds the player's current col/row in order to identify his/her current room

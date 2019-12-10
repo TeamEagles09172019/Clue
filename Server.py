@@ -3,6 +3,7 @@ from thread import *
 from clue import Player
 from Dashboard import Dashboard
 import pickle
+from Deck import Deck
 
 hostname = socket.gethostname()
 IPAddr = socket.gethostbyname(hostname)
@@ -52,8 +53,13 @@ def threaded_client(conn, player):
     print("Lost connection")
     conn.close()
 
-
-players = [Player(103,103,30,30,(255,0,0),'No accusation', 'No suggestion','0.0.0.0',5555, 'Study'), Player(9 * offset,3 * offset,31,31, (0,0,255), 'No accusation', 'No suggestion','0.0.0.0',5556,'Ballroom')] #objects
+NoP = 2
+D = Deck()
+DC = D.DistributeCards(NoP)
+#for i in range(NoP):
+#    print('Player ' + str(i) + ' cards: ', ', '.join(DC[i]))
+    
+players = [Player(103,103,30,30,(255,0,0),'No accusation', 'No suggestion','0.0.0.0',5555, 'Study',DC[0]), Player(9 * offset,3 * offset,31,31, (0,0,255), 'No accusation', 'No suggestion','0.0.0.0',5556,'Ballroom',DC[1])] #objects
 
 currentPlayer = 0
 while True:

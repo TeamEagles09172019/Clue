@@ -253,7 +253,9 @@ def main():
 			p.player_info()
 		
 		keys = pygame.key.get_pressed()
-		card_solution(DC, NoP)
+		if keys[pygame.K_d]:
+			p.show_cards()
+		#card_solution(DC, NoP)
 		#p.move()
 		
 		if event.type == pygame.MOUSEBUTTONDOWN:

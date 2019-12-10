@@ -71,7 +71,7 @@ class Deck:
         return R
 
 #Demo
-#NoP = 1
+NoP = 3
 #D = Deck()
 #DC = D.DistributeCards(NoP)
 #for i in range(NoP):
