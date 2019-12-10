@@ -222,35 +222,35 @@ class Player():
 	
 		return location_rects
 				
-	def move(self, x, y):
-		self.x = x
-		self.y = y
-		pos = (self.x, self.y)
-		self.room = self.identifyRoom(self.x, self.y)
+	def move(self, win, char, player_rects, color, col, row):
+# 		self.x = x
+# 		self.y = y
+# 		pos = (self.x, self.y)
+# 		self.room = self.identifyRoom(self.x, self.y)
 		
-		if self.room is not None:
-			self.rect = (self.x, self.y, TILE_WIDTH, TILE_HEIGHT)
-			self.prev_pos_x = self.x
-			self.prev_pos_y = self.y
-			print 'Valid Move ', self.x, self.y 		
+# 		if self.room is not None:
+# 			self.rect = (self.x, self.y, TILE_WIDTH, TILE_HEIGHT)
+# 			self.prev_pos_x = self.x
+# 			self.prev_pos_y = self.y
+# 			print 'Valid Move ', self.x, self.y 		
 						
-		else:
-			print 'Move is invalid, try again: Previous Pos is: ', self.prev_pos_x, self.prev_pos_y
+# 		else:
+# 			print 'Move is invalid, try again: Previous Pos is: ', self.prev_pos_x, self.prev_pos_y
 			
-			
-		#if direction == 'LEFT':
-		#	self.x -= self.vel
+		## player square moves to col, row passed here
+		player_rect = pygame.Rect([TILE_SIZE*col + TILE_MARGIN, TILE_SIZE* row + TILE_MARGIN, TILE_WIDTH, TILE_HEIGHT])
+		pygame.draw.rect(win, (color), player_rect)
+		drawText(char, player_font, win, TILE_SIZE*col, TILE_SIZE* row)
 
-		#if direction == 'RIGHT':
-		#	self.x += self.vel
-		#
+		## return current room
+		room = identifyRoom(col, row)
 
-		#if direction == 'UP':
-		#	self.y -= self.vel
-		#
-		#if direction == 'DOWN':
-		#	self.y += self.vel
-		
+		## obtain the possible valid moves
+		valid_spaces = creatingPointerRects(move_ids[room]) ## returns dict of rects of valid spaces to move to by detecting collision with mouse pointer
+
+		return valid_spaces, player_rect
+
+
 	def update(self):
 		self.rect = (self.x, self.y, TILE_WIDTH, TILE_HEIGHT)
 	
