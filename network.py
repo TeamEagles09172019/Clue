@@ -12,7 +12,6 @@ class Network:
 		self.port = port_num
 		self.addr = (self.server, self.port)
 		self.p = self.connect()
-		self.status = 0
 
 	def getP(self):
 		return self.p
@@ -21,7 +20,6 @@ class Network:
 		try:
 			self.client.connect(self.addr)
 			print "Connected to Server"
-			self.status = 1
 			return pickle.loads(self.client.recv(2048))
 		except:
 			#return False
